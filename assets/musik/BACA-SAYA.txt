@@ -1,0 +1,6 @@
+Taruh file musik (.mp3) di folder ini, lalu tulis namanya di config.js, contoh:
+
+  musik: "assets/musik/lagu-kami.mp3",
+
+Gunakan musik bebas royalti atau yang Anda punya izin pakainya.
+Ukuran file sebaiknya di bawah 5 MB agar undangan cepat dibuka.

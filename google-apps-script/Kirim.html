@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<style>
+  :root { --hijau:#1E3A2B; --kuningan:#A8843F; --garis:#E2E2DA; --abu:#6B6F6A; --latar:#F7F7F2; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 13px/1.45 Arial, sans-serif; color: #222; background: #fff; }
+  header { position: sticky; top: 0; background: #fff; border-bottom: 1px solid var(--garis); padding: 12px 12px 10px; z-index: 2; }
+  h1 { font-size: 15px; margin: 0 0 8px; color: var(--hijau); }
+  .rekap { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px; }
+  .rekap div { background: var(--latar); border-radius: 8px; padding: 6px 8px; }
+  .rekap b { display: block; font-size: 16px; color: var(--hijau); }
+  .rekap span { color: var(--abu); font-size: 11px; }
+  input[type=search], select { width: 100%; padding: 7px 9px; border: 1px solid #ccc; border-radius: 6px; font: inherit; margin-bottom: 6px; }
+  .baris-alat { display: flex; gap: 6px; }
+  .baris-alat select { flex: 1; }
+  .tbl { border: 1px solid #ccc; background: #fff; border-radius: 6px; padding: 0 10px; cursor: pointer; font: inherit; height: 33px; }
+  .peringatan { background: #FFF4D6; border: 1px solid #F0D68A; border-radius: 6px; padding: 8px; margin-top: 6px; font-size: 12px; }
+  ul { list-style: none; margin: 0; padding: 6px 12px 24px; }
+  li { border-bottom: 1px solid var(--garis); padding: 10px 0; }
+  .nama { font-weight: bold; font-size: 13.5px; word-break: break-word; }
+  .info { color: var(--abu); font-size: 11.5px; margin: 2px 0 6px; }
+  .lencana { display: inline-block; font-size: 10.5px; padding: 1px 7px; border-radius: 10px; margin-right: 4px; background: #EEE; color: #555; }
+  .lencana.ok { background: #DCEFD9; color: #1E5631; }
+  .lencana.buka { background: #E3ECF7; color: #24476B; }
+  .lencana.tidak { background: #F7DEDA; color: #8B1A1A; }
+  .aksi { display: flex; gap: 6px; flex-wrap: wrap; }
+  .aksi a, .aksi button { display: inline-block; text-decoration: none; font: inherit; font-size: 12px; padding: 6px 10px; border-radius: 6px; cursor: pointer; }
+  .kirim { background: #1F8F4E; color: #fff; border: 1px solid #1F8F4E; }
+  .kirim.ulang { background: #fff; color: #1F8F4E; }
+  .salin { background: #fff; color: #333; border: 1px solid #ccc; }
+  .salin-input { width: 100%; margin-top: 6px; font-size: 11px; }
+  .kosong, .muat { color: var(--abu); text-align: center; padding: 24px 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Kirim Undangan</h1>
+  <div class="rekap" id="rekap"></div>
+  <input type="search" id="cari" placeholder="Cari nama tamu…">
+  <div class="baris-alat">
+    <select id="saring">
+      <option value="belum">Belum dikirim</option>
+      <option value="semua">Semua tamu</option>
+      <option value="terkirim">Sudah dikirim</option>
+      <option value="belumbuka">Terkirim, belum dibuka</option>
+      <option value="belumrsvp">Belum RSVP</option>
+    </select>
+    <button class="tbl" id="muat-ulang" title="Muat ulang data">Muat ulang</button>
+  </div>
+  <div id="peringatan"></div>
+</header>
+<ul id="daftar"><li class="muat">Memuat data tamu…</li></ul>
+
+<script>
+  var DATA = { tamu: [], rekap: {} };
+
+  function el(tag, cls, teks) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (teks != null) e.textContent = teks;
+    return e;
+  }
+
+  function muat() {
+    document.getElementById('daftar').innerHTML = '<li class="muat">Memuat data tamu…</li>';
+    google.script.run
+      .withSuccessHandler(function (d) { DATA = d; gambar(); })
+      .withFailureHandler(function (err) {
+        document.getElementById('daftar').innerHTML = '';
+        document.getElementById('daftar').appendChild(el('li', 'kosong', 'Gagal memuat: ' + err.message));
+      })
+      .dataPanel();
+  }
+
+  function gambarRekap() {
+    var r = DATA.rekap, box = document.getElementById('rekap');
+    box.innerHTML = '';
+    [
+      [r.terkirim + ' / ' + r.total, 'undangan terkirim'],
+      [r.dibuka, 'sudah dibuka'],
+      [r.rsvpHadir + ' (' + r.orangHadir + ' org)', 'konfirmasi hadir'],
+      [r.rsvpTidak, 'tidak hadir']
+    ].forEach(function (x) {
+      var d = el('div'); d.appendChild(el('b', null, String(x[0]))); d.appendChild(el('span', null, x[1])); box.appendChild(d);
+    });
+    var p = document.getElementById('peringatan');
+    p.innerHTML = '';
+    if (!DATA.linkSiap) p.appendChild(el('div', 'peringatan', 'Isi "Link website undangan" di sheet Pengaturan Undangan, lalu jalankan menu "2. Buat / perbarui link undangan".'));
+    else if (r.adaLink < r.total) p.appendChild(el('div', 'peringatan', (r.total - r.adaLink) + ' tamu belum punya link. Jalankan menu "2. Buat / perbarui link undangan".'));
+  }
+
+  function cocok(t) {
+    var q = document.getElementById('cari').value.trim().toLowerCase();
+    if (q && t.nama.toLowerCase().indexOf(q) < 0) return false;
+    var s = document.getElementById('saring').value;
+    if (s === 'belum') return !t.terkirim;
+    if (s === 'terkirim') return t.terkirim;
+    if (s === 'belumbuka') return t.terkirim && !t.dibuka;
+    if (s === 'belumrsvp') return !t.rsvp || t.rsvp === 'Belum Konfirmasi';
+    return true;
+  }
+
+  function gambar() {
+    gambarRekap();
+    var ul = document.getElementById('daftar');
+    ul.innerHTML = '';
+    var tampil = DATA.tamu.filter(cocok);
+    if (!tampil.length) { ul.appendChild(el('li', 'kosong', 'Tidak ada tamu pada daftar ini.')); return; }
+    tampil.forEach(function (t) {
+      var li = el('li');
+      li.appendChild(el('div', 'nama', t.nama));
+      var info = el('div', 'info');
+      info.appendChild(document.createTextNode(t.hp ? '+' + t.hp + ' ' : 'Nomor WA kosong '));
+      if (t.terkirim) info.appendChild(el('span', 'lencana ok', 'Terkirim' + (t.waktuKirim ? ' ' + t.waktuKirim : '')));
+      if (t.dibuka) info.appendChild(el('span', 'lencana buka', 'Dibuka ' + t.dibuka + (t.jumlahDibuka > 1 ? ' (' + t.jumlahDibuka + 'x)' : '')));
+      if (t.rsvp === 'Konfirmasi Hadir') info.appendChild(el('span', 'lencana ok', 'Hadir'));
+      if (t.rsvp === 'Konfirmasi Tidak Hadir') info.appendChild(el('span', 'lencana tidak', 'Tidak hadir'));
+      li.appendChild(info);
+
+      var aksi = el('div', 'aksi');
+      if (t.wa) {
+        var a = el('a', 'kirim' + (t.terkirim ? ' ulang' : ''), t.terkirim ? 'Kirim ulang' : (t.hp ? 'Kirim WA' : 'Kirim WA (pilih kontak)'));
+        a.href = t.wa; a.target = '_blank'; a.rel = 'noopener';
+        a.addEventListener('click', function () {
+          google.script.run.withSuccessHandler(function (res) {
+            t.terkirim = true; t.waktuKirim = res.waktuKirim; t.status = 'Sudah Dikirim';
+            DATA.rekap.terkirim = DATA.tamu.filter(function (x) { return x.terkirim; }).length;
+            setTimeout(gambar, 400);
+          }).tandaiTerkirim(t.kode);
+        });
+        aksi.appendChild(a);
+        var b = el('button', 'salin', 'Salin link');
+        b.addEventListener('click', function () {
+          function manual() {
+            if (li.querySelector('.salin-input')) return;
+            var inp = el('input', 'salin-input'); inp.value = t.link; inp.readOnly = true;
+            li.appendChild(inp); inp.focus(); inp.select();
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(t.link).then(function () { b.textContent = 'Tersalin'; setTimeout(function () { b.textContent = 'Salin link'; }, 1500); }, manual);
+          } else { manual(); }
+        });
+        aksi.appendChild(b);
+      } else {
+        aksi.appendChild(el('span', 'info', 'Belum ada link'));
+      }
+      li.appendChild(aksi);
+      ul.appendChild(li);
+    });
+  }
+
+  document.getElementById('cari').addEventListener('input', gambar);
+  document.getElementById('saring').addEventListener('change', gambar);
+  document.getElementById('muat-ulang').addEventListener('click', muat);
+  muat();
+</script>
+</body>
+</html>
