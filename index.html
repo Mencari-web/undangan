@@ -14,61 +14,99 @@
 <meta property="og:image" content="https://akarotto-stack.github.io/undangan/assets/img/og-image.jpg">
 <meta property="og:type" content="website">
 <meta name="description" content="Undangan pernikahan Devi &amp; Faiz">
-<meta name="theme-color" content="#111111">
+<meta name="theme-color" content="#FBF9F5">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,400..500&amp;family=Italiana&amp;family=Jost:wght@300;400;500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Pinyon+Script&amp;display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
+<link rel="preload" as="image" href="assets/img/hiasan/rangkaian-gantung.webp">
+<link rel="preload" as="image" href="assets/img/hiasan/rangkaian-sudut.webp">
 <!-- siapkan animasi sebelum halaman tampil (dibatalkan bila script utama gagal dimuat) -->
 <script>(function(d){if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("siap-animasi");setTimeout(function(){if(!window.UNDANGAN_SIAP)d.classList.remove("siap-animasi")},4000)})(document.documentElement)</script>
 </head>
 <body>
 
-<!-- ===== Daun garis emas (dipakai berulang di belakang lily lukisan) ===== -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <defs>
-    <symbol id="m-daun" viewBox="-10 -48 20 50" overflow="visible">
-      <path fill="none" stroke="#C5A15A" stroke-width=".9" d="M0 0C-7-12-6.5-31 0-46C6.5-31 7-12 0 0Z"/>
-      <path fill="none" stroke="#C5A15A" stroke-width=".6" d="M0-2V-42"/>
-    </symbol>
-  </defs>
-</svg>
+<!-- ===== Kupu-kupu emas (disalin oleh main.js ke tempat bertanda data-kupu) ===== -->
+<template id="tpl-kupu">
+  <span class="kupu" aria-hidden="true">
+    <svg viewBox="-50 -42 100 84">
+      <defs>
+        <linearGradient id="g-emas-kupu" x1="0" y1="-40" x2="0" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0" stop-color="#F3DFA2"/><stop offset=".5" stop-color="#C9A04E"/><stop offset="1" stop-color="#8E6A2A"/>
+        </linearGradient>
+      </defs>
+      <g fill="url(#g-emas-kupu)" stroke="#7A5A22" stroke-width=".8">
+        <g class="sayap"><path d="M-2-2C-18-38-48-38-46-14C-44 2-22 4-2 2Z"/><path d="M-2 3C-24 7-38 25-26 34C-16 41-6 22-2 7Z"/></g>
+        <g transform="scale(-1 1)"><g class="sayap"><path d="M-2-2C-18-38-48-38-46-14C-44 2-22 4-2 2Z"/><path d="M-2 3C-24 7-38 25-26 34C-16 41-6 22-2 7Z"/></g></g>
+      </g>
+      <path d="M0-15C2-7 2 11 0 19C-2 11-2-7 0-15Z" fill="#6E5020"/>
+      <path d="M0-14Q-4-24-9-28M0-14Q4-24 9-28" stroke="#6E5020" stroke-width=".9" fill="none"/>
+    </svg>
+  </span>
+</template>
 
-<!-- ===================== SAMPUL (layar pertama) ===================== -->
+<!-- ===================== SAMPUL: AMPLOP ===================== -->
 <div id="sampul" class="sampul" role="dialog" aria-modal="true" aria-labelledby="sampul-nama">
+  <canvas class="kelopak-jatuh" id="kelopak-jatuh" aria-hidden="true"></canvas>
+  <img class="hias-gantung" src="assets/img/hiasan/rangkaian-gantung.webp" alt="" aria-hidden="true">
+  <img class="hias-bawah" src="assets/img/hiasan/rangkaian-bawah.webp" alt="" aria-hidden="true">
+  <span data-kupu="3"></span>
+
   <div class="sampul-isi">
-    <div class="komposisi" data-ada="fotoUtama">
-      <figure class="bingkai-lengkung bingkai-anim"><div class="foto-dalam"><img data-src="fotoUtama" alt="Foto kedua mempelai"></div></figure>
-      <div class="rangkaian kiri-bawah" data-rangkaian="penuh" aria-hidden="true"></div>
-      <div class="rangkaian kanan-atas" data-rangkaian="bunga" aria-hidden="true"></div>
-    </div>
     <p class="alis" data-isi="judulKecil"></p>
-    <h1 id="sampul-nama" class="nama-pasangan">
-      <span data-nama="1"></span> <span class="dan">&amp;</span> <span data-nama="2"></span>
-    </h1>
+    <h1 id="sampul-nama" class="nama-pasangan"><span data-nama="1"></span> <span class="dan">&amp;</span> <span data-nama="2"></span></h1>
     <p class="tanggal-singkat" data-tanggal-singkat></p>
-    <div class="kartu-tamu">
-      <p class="kecil" data-isi="sampul.sapaan"></p>
-      <p class="nama-tamu" id="nama-tamu"></p>
-      <p class="catatan" data-isi="sampul.catatan"></p>
+
+    <div class="amplop" id="amplop">
+      <img class="hias-amplop kiri" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true">
+      <img class="hias-amplop kanan" src="assets/img/hiasan/rangkaian-pojok-bawah.webp" alt="" aria-hidden="true">
+      <div class="amplop-badan">
+        <div class="surat" aria-hidden="true">
+          <span class="surat-monogram" data-monogram></span>
+          <span class="surat-garis"></span>
+        </div>
+        <div class="amplop-depan"></div>
+        <div class="amplop-tutup"></div>
+        <div class="kartu-tamu">
+          <p class="kecil" data-isi="sampul.sapaan"></p>
+          <p class="nama-tamu" id="nama-tamu"></p>
+        </div>
+        <button type="button" class="segel" id="segel" aria-label="Buka undangan">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <defs>
+              <radialGradient id="g-segel" cx="40%" cy="34%" r="72%">
+                <stop offset="0" stop-color="#C9404F"/><stop offset=".55" stop-color="#8E1B2C"/><stop offset="1" stop-color="#560C19"/>
+              </radialGradient>
+            </defs>
+            <path fill="url(#g-segel)" d="M113.6 54.1Q115.4 60.0 111.9 65.5Q108.4 71.0 107.3 76.7Q106.3 82.3 102.7 86.7Q99.0 91.1 94.9 94.9Q90.8 98.6 86.6 102.5Q82.3 106.3 77.2 109.7Q72.1 113.1 66.1 116.0Q60.0 118.8 54.0 115.5Q48.1 112.2 43.1 108.8Q38.2 105.3 32.8 103.1Q27.4 100.8 23.9 96.2Q20.4 91.6 17.7 86.6Q14.9 81.7 13.3 76.4Q11.6 71.0 8.2 65.5Q4.7 60.0 5.8 53.9Q6.8 47.9 9.1 42.2Q11.4 36.6 14.6 31.5Q17.9 26.4 22.2 22.2Q26.5 17.9 32.3 16.4Q38.2 14.8 43.5 12.6Q48.7 10.4 54.3 6.3Q60.0 2.2 65.9 5.1Q71.9 7.9 77.7 9.6Q83.5 11.2 88.7 14.4Q93.8 17.6 96.3 23.3Q98.7 29.1 103.1 33.1Q107.4 37.2 109.6 42.7Q111.7 48.2 113.6 54.1Z"/>
+            <circle cx="60" cy="60" r="38" fill="none" stroke="#5E0F1C" stroke-width="3" opacity=".55"/>
+            <circle cx="60" cy="61.5" r="38" fill="none" stroke="#E07A88" stroke-width="1" opacity=".35"/>
+            <text class="segel-teks bayang" x="60" y="73" text-anchor="middle" data-monogram></text>
+            <text class="segel-teks" x="60" y="71.5" text-anchor="middle" data-monogram></text>
+          </svg>
+        </button>
+      </div>
     </div>
-    <button type="button" id="buka-undangan" class="tombol tombol-emas">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7.5 12 13l9-5.5M4.5 5h15A1.5 1.5 0 0 1 21 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5v-11A1.5 1.5 0 0 1 4.5 5Z"/></svg>
-      <span data-isi="sampul.tombol"></span>
-    </button>
+
+    <button type="button" id="buka-undangan" class="tombol-teks"><span data-isi="sampul.tombol"></span></button>
+    <p class="catatan" data-isi="sampul.catatan"></p>
   </div>
 </div>
 
 <!-- ============ PANEL KIRI (hanya tampil di layar lebar) ============ -->
 <aside class="panel-samping" aria-hidden="true">
+  <img class="hias-gantung" src="assets/img/hiasan/rangkaian-gantung.webp" alt="">
+  <img class="hias-bawah" src="assets/img/hiasan/rangkaian-bawah.webp" alt="">
+  <span data-kupu="2"></span>
   <div class="panel-isi">
-    <div class="komposisi besar" data-ada="fotoUtama">
-      <figure class="bingkai-lengkung"><div class="foto-dalam"><img data-src="fotoUtama" alt=""></div></figure>
-      <div class="rangkaian kiri-bawah" data-rangkaian="penuh" aria-hidden="true"></div>
-      <div class="rangkaian kanan-atas" data-rangkaian="bunga" aria-hidden="true"></div>
-    </div>
     <p class="alis" data-isi="judulKecil"></p>
+    <div class="gapura" data-ada="fotoUtama">
+      <div class="gapura-foto"><img data-src="fotoUtama" alt=""></div>
+      <img class="gapura-bingkai" src="assets/img/hiasan/gapura-kayu.webp" alt="">
+      <img class="hias-gapura atas" src="assets/img/hiasan/rangkaian-sudut.webp" alt="">
+      <img class="hias-gapura bawah" src="assets/img/hiasan/rangkaian-pojok-bawah.webp" alt="">
+    </div>
     <p class="nama-pasangan besar"><span data-nama="1"></span> <span class="dan">&amp;</span> <span data-nama="2"></span></p>
     <p class="tanggal-singkat" data-tanggal-singkat></p>
   </div>
@@ -77,14 +115,17 @@
 <!-- ====================== ISI UNDANGAN ====================== -->
 <main id="undangan" class="kolom">
 
-  <!-- Pembuka -->
+  <!-- Pembuka: gapura kayu berukir -->
   <section id="beranda" class="bagian pembuka">
+    <img class="hias-gantung" src="assets/img/hiasan/rangkaian-gantung.webp" alt="" aria-hidden="true">
+    <span data-kupu="2"></span>
     <div class="isi">
       <p class="alis muncul" data-isi="judulKecil"></p>
-      <div class="komposisi" data-ada="fotoUtama">
-        <figure class="bingkai-lengkung bingkai-anim"><div class="foto-dalam"><img data-src="fotoUtama" alt="Foto kedua mempelai"></div></figure>
-        <div class="rangkaian kiri-bawah" data-rangkaian="penuh" aria-hidden="true"></div>
-        <div class="rangkaian kanan-atas" data-rangkaian="bunga" aria-hidden="true"></div>
+      <div class="gapura bingkai-anim" data-ada="fotoUtama">
+        <div class="gapura-foto foto-dalam"><img data-src="fotoUtama" alt="Foto kedua mempelai"></div>
+        <img class="gapura-bingkai" src="assets/img/hiasan/gapura-kayu.webp" alt="" aria-hidden="true">
+        <img class="hias-gapura atas" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true">
+        <img class="hias-gapura bawah" src="assets/img/hiasan/rangkaian-pojok-bawah.webp" alt="" aria-hidden="true">
       </div>
       <h2 class="nama-pasangan muncul"><span data-nama="1"></span> <span class="dan">&amp;</span> <span data-nama="2"></span></h2>
       <p class="tanggal-panjang muncul" data-tanggal-panjang></p>
@@ -95,45 +136,65 @@
         <div><b data-hm="detik">00</b><span>Detik</span></div>
       </div>
       <p class="hm-selesai" id="hm-selesai" hidden></p>
-      <a class="tombol tombol-hitam muncul" id="simpan-tanggal" target="_blank" rel="noopener">
+      <a class="tombol tombol-merah muncul" id="simpan-tanggal" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3v3M17 3v3M4 9h16M5.5 5h13A1.5 1.5 0 0 1 20 6.5v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5Z"/></svg>
         Simpan Tanggal
       </a>
     </div>
   </section>
 
-  <!-- Salam & kutipan -->
-  <section id="salam" class="bagian salam gelap">
+  <!-- Salam, kutipan & pemutar lagu -->
+  <section id="salam" class="bagian salam ada-sudut">
+    <img class="hias-sudut kiri" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true" loading="lazy">
+    <img class="hias-sudut kanan" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="isi">
-      <span class="pembatas muncul" aria-hidden="true"></span>
       <p class="salam-buka muncul" data-isi="salamPembuka"></p>
       <p class="muncul" data-isi="kalimatPembuka"></p>
-      <blockquote class="kutipan muncul" data-tampil="kutipan">
-        <p data-isi="kutipan.teks"></p>
-        <cite data-isi="kutipan.sumber"></cite>
-      </blockquote>
+      <figure class="kutipan muncul" data-tampil="kutipan">
+        <blockquote><p data-isi="kutipan.teks"></p></blockquote>
+        <figcaption data-isi="kutipan.sumber"></figcaption>
+      </figure>
+      <div class="pemutar muncul" id="pemutar" hidden>
+        <p class="alis">Ketuk untuk putar lagu</p>
+        <p class="judul-lagu" data-isi="judulLagu"></p>
+        <input type="range" id="lagu-posisi" min="0" max="1000" value="0" step="1" aria-label="Posisi lagu">
+        <div class="waktu-lagu"><span id="lagu-kini">0:00</span><span id="lagu-total">0:00</span></div>
+        <div class="kontrol-lagu">
+          <button type="button" id="lagu-mundur" aria-label="Mundur 10 detik">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 6 5 12l6 6M19 6l-6 6 6 6"/></svg>
+          </button>
+          <button type="button" id="lagu-putar" class="putar" aria-label="Putar lagu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="ikon-putar" d="M8 5.5v13l11-6.5Z"/><path class="ikon-jeda" d="M8 5v14M16 5v14"/></svg>
+          </button>
+          <button type="button" id="lagu-maju" aria-label="Maju 10 detik">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m13 6 6 6-6 6M5 6l6 6-6 6"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Mempelai -->
-  <section id="mempelai" class="bagian mempelai">
+  <section id="mempelai" class="bagian mempelai ada-sudut">
+    <img class="hias-sudut kanan" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="isi">
       <header class="judul-bagian muncul">
         <p class="alis">Kedua Mempelai</p>
         <h2>Dengan Penuh Syukur</h2>
-        <span class="pembatas" aria-hidden="true"></span>
+        <img class="pembatas" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true" loading="lazy">
       </header>
       <div class="profil-wadah" id="profil-wadah"></div>
     </div>
   </section>
 
   <!-- Acara -->
-  <section id="acara" class="bagian acara gelap">
+  <section id="acara" class="bagian acara ada-sudut">
+    <img class="hias-sudut kiri" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="isi">
       <header class="judul-bagian muncul">
         <p class="alis">Waktu &amp; Tempat</p>
         <h2>Rangkaian Acara</h2>
-        <span class="pembatas" aria-hidden="true"></span>
+        <img class="pembatas" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true" loading="lazy">
       </header>
       <div class="daftar-acara" id="daftar-acara"></div>
       <div class="dress-code muncul" id="dress-code" hidden>
@@ -150,44 +211,46 @@
       <header class="judul-bagian muncul">
         <p class="alis">Perjalanan Kami</p>
         <h2>Cerita Cinta</h2>
-        <span class="pembatas" aria-hidden="true"></span>
+        <img class="pembatas" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true" loading="lazy">
       </header>
       <ol class="linimasa" id="linimasa"></ol>
     </div>
   </section>
 
   <!-- Galeri -->
-  <section id="galeri" class="bagian galeri" data-tampil="galeri">
+  <section id="galeri" class="bagian galeri ada-sudut" data-tampil="galeri">
+    <img class="hias-sudut kanan" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="isi">
       <header class="judul-bagian muncul">
         <p class="alis">Momen Bahagia</p>
         <h2>Galeri</h2>
-        <span class="pembatas" aria-hidden="true"></span>
+        <img class="pembatas" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true" loading="lazy">
       </header>
       <div class="kisi-foto" id="kisi-foto"></div>
     </div>
   </section>
 
   <!-- Siaran langsung -->
-  <section id="streaming" class="bagian streaming gelap" data-tampil="streaming">
+  <section id="streaming" class="bagian streaming" data-tampil="streaming">
     <div class="isi">
       <header class="judul-bagian muncul">
         <p class="alis">Siaran Langsung</p>
         <h2>Saksikan dari Jauh</h2>
-        <span class="pembatas" aria-hidden="true"></span>
+        <img class="pembatas" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true" loading="lazy">
       </header>
       <p class="muncul" data-isi="streaming.teks"></p>
-      <a class="tombol tombol-emas muncul" id="link-streaming" target="_blank" rel="noopener"><span data-isi="streaming.label"></span></a>
+      <a class="tombol tombol-merah muncul" id="link-streaming" target="_blank" rel="noopener"><span data-isi="streaming.label"></span></a>
     </div>
   </section>
 
   <!-- RSVP & ucapan -->
-  <section id="rsvp" class="bagian rsvp" data-tampil="rsvp">
+  <section id="rsvp" class="bagian rsvp ada-sudut" data-tampil="rsvp">
+    <img class="hias-sudut kiri" src="assets/img/hiasan/rangkaian-sudut.webp" alt="" aria-hidden="true" loading="lazy">
     <div class="isi">
       <header class="judul-bagian muncul">
         <p class="alis">Konfirmasi Kehadiran</p>
         <h2>RSVP <span class="amp">&amp;</span> Ucapan</h2>
-        <span class="pembatas" aria-hidden="true"></span>
+        <img class="pembatas" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true" loading="lazy">
       </header>
       <p class="muncul" data-isi="rsvp.teks"></p>
 
@@ -212,7 +275,7 @@
           <textarea id="rsvp-ucapan" name="ucapan" rows="4" maxlength="500"></textarea>
         </div>
         <p class="pesan-form" id="pesan-form" role="status"></p>
-        <button type="submit" class="tombol tombol-hitam" id="kirim-rsvp">Kirim</button>
+        <button type="submit" class="tombol tombol-merah" id="kirim-rsvp">Kirim</button>
       </form>
 
       <div class="ucapan-kepala muncul">
@@ -226,9 +289,10 @@
   </section>
 
   <!-- Penutup -->
-  <section id="penutup" class="bagian penutup gelap">
-    <div class="rangkaian sudut-kiri" data-rangkaian="bunga" aria-hidden="true"></div>
-    <div class="rangkaian sudut-kanan" data-rangkaian="penuh" aria-hidden="true"></div>
+  <section id="penutup" class="bagian penutup">
+    <img class="hias-gantung" src="assets/img/hiasan/rangkaian-gantung.webp" alt="" aria-hidden="true" loading="lazy">
+    <img class="hias-bawah" src="assets/img/hiasan/rangkaian-bawah.webp" alt="" aria-hidden="true" loading="lazy">
+    <span data-kupu="2"></span>
     <div class="isi">
       <p class="muncul" data-isi="kalimatPenutup"></p>
       <p class="salam-buka muncul" data-isi="salamPenutup"></p>
@@ -239,7 +303,7 @@
         <p class="alis">Turut Mengundang</p>
         <ul id="daftar-turut"></ul>
       </div>
-      <p class="tagar" data-isi="tagar"></p>
+      <p class="tagar muncul" data-isi="tagar"></p>
     </div>
   </section>
 
@@ -268,9 +332,9 @@
 <!-- ===== Cetakan berulang (boleh diubah tampilannya) ===== -->
 <template id="tpl-profil">
   <article class="profil">
-    <figure class="bingkai-daun bingkai-anim">
+    <figure class="bingkai-lengkung bingkai-anim">
       <div class="foto-dalam"><img alt=""></div>
-      <img class="lily-sudut" data-lily="bunga" alt="" aria-hidden="true">
+      <img class="hias-profil" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true">
     </figure>
     <h3 class="panggilan muncul"></h3>
     <p class="nama-lengkap muncul"></p>
@@ -285,7 +349,7 @@
 
 <template id="tpl-acara">
   <article class="kartu-acara muncul">
-    <img class="lily-atas" data-lily="bunga" alt="" aria-hidden="true">
+    <img class="hias-kartu" src="assets/img/hiasan/rangkaian-kecil.webp" alt="" aria-hidden="true">
     <h3 class="nama-acara"></h3>
     <p class="hari-tanggal"></p>
     <p class="jam"></p>
@@ -294,7 +358,7 @@
     <p class="alamat"></p>
     <div class="peta" hidden></div>
     <div class="aksi">
-      <a class="tombol tombol-emas kecil link-maps" target="_blank" rel="noopener">Petunjuk Arah</a>
+      <a class="tombol tombol-merah kecil link-maps" target="_blank" rel="noopener">Petunjuk Arah</a>
       <a class="tombol tombol-garis kecil link-kalender" target="_blank" rel="noopener">Tambah ke Kalender</a>
     </div>
   </article>

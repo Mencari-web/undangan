@@ -30,6 +30,7 @@ undangan-digital/
 │   ├── css/style.css       ← warna, huruf, tampilan
 │   ├── js/main.js          ← logika (biasanya tidak perlu diubah)
 │   ├── img/                ← foto (ganti file contoh dengan foto Anda)
+│   │   └── hiasan/         ← rangkaian bunga, gapura kayu, tekstur latar
 │   └── musik/              ← taruh file .mp3 di sini
 └── google-apps-script/
     ├── Code.gs             ← ditempel ke Apps Script di spreadsheet
@@ -157,12 +158,18 @@ Untuk menyembunyikan ucapan tertentu dari website, ubah kolom **Tampilkan** di s
 
 ## Mengubah tampilan
 
-- **Warna & huruf:** blok `:root` paling atas di `assets/css/style.css`. Misalnya `--hitam` untuk latar gelap, `--emas` untuk aksen, `--pink` untuk warna lily. Huruf diambil dari Google Fonts: ganti link font di `index.html` dan nama font di `--font-judul` / `--font-teks`.
+- **Warna & huruf:** blok `:root` paling atas di `assets/css/style.css`: `--merah`, `--pink`, `--emas`, `--coklat`, `--hijau`, `--putih`. Huruf (Pinyon Script & Cormorant Garamond) diambil dari Google Fonts lewat link di `index.html`.
 - **Urutan bagian:** di `index.html`, setiap bagian dibungkus `<section id="...">`. Pindahkan blok `<section>…</section>` untuk mengubah urutan.
 - **Teks judul bagian** (mis. "Rangkaian Acara"): langsung di `index.html`.
 - **Tampilan profil mempelai, kartu acara, ucapan:** blok `<template>` di bagian bawah `index.html`.
-- **Bunga lily:** diambil dari lukisan Anda sendiri, latarnya sudah dibuang: `assets/img/lily-lukisan.webp` (lengkap dengan batang & daun) dan `assets/img/lily-bunga.webp` (kepala bunga saja). Untuk memakai lukisan lain, siapkan gambar PNG/WebP berlatar transparan lalu ubah `lukisanLily` di `config.js`. Daun garis emas di belakangnya diatur di `DAUN` pada `assets/js/main.js`; posisi rangkaian di `.rangkaian.kiri-bawah` / `.kanan-atas` pada `style.css`.
-- **Bingkai foto:** bentuk lengkung (`.bingkai-lengkung`) dan bingkai daun (`.bingkai-daun`) di `style.css`; animasinya di bagian "animasi masuk bingkai".
+- **Rangkaian bunga** ada di folder `assets/img/hiasan/` (gambar WebP transparan, dilukis bergaya akrilik senada lily lukisan Anda):
+  - `rangkaian-gantung.webp` untaian atas, `rangkaian-bawah.webp` hamparan bawah,
+  - `rangkaian-sudut.webp` sudut atas (dicerminkan otomatis untuk sudut kanan), `rangkaian-pojok-bawah.webp` buket tegak,
+  - `rangkaian-kecil.webp` pembatas & hiasan kartu, `gapura-kayu.webp` bingkai kayu ukir, `latar-putih.webp` tekstur latar.
+  Lily pink, putih, dan merah di dalam rangkaian berasal dari lukisan Anda; potongan aslinya tersimpan sebagai `lily-lukisan-asli.webp` dan `lily-kepala-asli.webp`. Ganti file dengan nama yang sama untuk memakai gambar lain.
+- **Sampul amplop:** segel lilin memakai inisial nama panggilan otomatis. Tamu bisa mengetuk segel atau tombol "Buka Undangan".
+- **Pemutar lagu:** muncul otomatis bila `musik` di `config.js` terisi. Judulnya diisi lewat `judulLagu`.
+- **Kupu-kupu & kelopak jatuh:** jumlah kupu-kupu diatur lewat atribut `data-kupu="3"` di `index.html`; hapus elemennya bila tidak ingin. Kelopak jatuh hanya tampil di sampul.
 - **Untuk acara non-Muslim:** ubah `salamPembuka`, `kutipan`, `salamPenutup`, dan `rsvp.labelHadir` di `config.js`.
 - **Peta di dalam halaman** (opsional): Google Maps → Bagikan → **Sematkan peta** → salin isi `src="..."` ke `petaEmbed` di `config.js`.
 

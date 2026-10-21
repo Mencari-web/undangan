@@ -37,13 +37,8 @@ window.UNDANGAN = {
       foto: "assets/img/pria.jpg"
     }
   },
-  fotoUtama: "assets/img/utama.jpg",          // foto di sampul, bagian pembuka & panel kiri (layar laptop)
+  fotoUtama: "assets/img/utama.jpg",          // foto di dalam gapura kayu (bagian pembuka & panel kiri)
 
-  // Lily dari lukisan Devi & Faiz (latar sudah dibuang, format .webp transparan)
-  lukisanLily: {
-    penuh: "assets/img/lily-lukisan.webp",    // bunga lengkap dengan batang & daun
-    bunga: "assets/img/lily-bunga.webp"       // kepala bunga saja
-  },
 
   /* 3. PEMBUKA ------------------------------------------------------------- */
   salamPembuka: "Assalamu'alaikum Warahmatullahi Wabarakatuh",
@@ -142,6 +137,7 @@ window.UNDANGAN = {
      "assets/musik/lagu.mp3". Pakai musik bebas royalti / milik sendiri.
      Kosong = tombol musik disembunyikan. */
   musik: "assets/musik/lagu-kami.mp3",
+  judulLagu: "",                              // judul lagu yang tampil di pemutar, contoh: "Perfect — Ed Sheeran"
 
   /* 11. TAMPILKAN / SEMBUNYIKAN BAGIAN --------------------------------------- */
   tampilkan: {

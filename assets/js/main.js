@@ -12,6 +12,7 @@
     WIT: { offset: "+09:00", tz: "Asia/Jayapura" }
   };
   var mf = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
+  var bisaAnimasi = !mf.matches && "IntersectionObserver" in window;
 
   /* ---------- alat bantu ---------- */
   function $(s, r) { return (r || document).querySelector(s); }
@@ -45,6 +46,10 @@
     } catch (e) { return d.toDateString(); }
   }
   function formatJam(jam) { return String(jam).replace(":", "."); }
+  function urutan() { return Array.isArray(C.urutanMempelai) ? C.urutanMempelai : ["pria", "wanita"]; }
+  function namaPanggilan() {
+    return urutan().map(function (k) { return ((C.mempelai || {})[k] || {}).panggilan; }).filter(Boolean);
+  }
 
   var notifTimer;
   function beriTahu(teks) {
@@ -53,20 +58,6 @@
     n.classList.add("tampil");
     clearTimeout(notifTimer);
     notifTimer = setTimeout(function () { n.classList.remove("tampil"); }, 2400);
-  }
-  function salin(teks, pesan) {
-    function cadangan() {
-      var t = document.createElement("textarea");
-      t.value = teks; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
-      document.body.appendChild(t); t.select();
-      var ok = false;
-      try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
-      document.body.removeChild(t);
-      beriTahu(ok ? pesan : "Salin manual: " + teks);
-    }
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(teks).then(function () { beriTahu(pesan); }, cadangan);
-    } else { cadangan(); }
   }
 
   /* ---------- data tamu dari link (?to=Nama&k=KODE) ---------- */
@@ -83,12 +74,13 @@
       if (adaIsi(v)) isi(el, v); else el.hidden = true;
     });
 
-    var urut = Array.isArray(C.urutanMempelai) ? C.urutanMempelai : ["pria", "wanita"];
-    var m = C.mempelai || {};
+    var m = C.mempelai || {}, urut = urutan();
     $$("[data-nama]").forEach(function (el) {
       var orang = m[urut[Number(el.getAttribute("data-nama")) - 1]] || {};
       el.textContent = orang.panggilan || "";
     });
+    var inisial = namaPanggilan().map(function (n) { return n.charAt(0).toUpperCase(); }).join("&");
+    $$("[data-monogram]").forEach(function (el) { el.textContent = inisial; });
 
     $$("img[data-src]").forEach(function (img) {
       var src = ambil(C, img.getAttribute("data-src"));
@@ -104,13 +96,13 @@
       $$("[data-tanggal-panjang]").forEach(function (el) { el.textContent = formatTanggal(d, pertama); });
     }
 
-    // nama tamu; tanda & diberi huruf aksen agar mudah dibaca
+    // nama tamu; tanda & diberi huruf aksen
     var namaTamu = $("#nama-tamu");
     String(tamu.nama || (C.sampul && C.sampul.sapaanTamu) || "Bapak/Ibu/Saudara/i").split("&").forEach(function (bagian, i) {
       if (i) { var a = document.createElement("span"); a.className = "amp"; a.textContent = "&"; namaTamu.appendChild(a); }
       namaTamu.appendChild(document.createTextNode(bagian));
     });
-    var mp = [m[urut[0]], m[urut[1]]].map(function (o) { return o && o.panggilan; }).filter(Boolean).join(" & ");
+    var mp = namaPanggilan().join(" & ");
     if (mp) document.title = (C.judulKecil || "The Wedding of") + " " + mp;
   }
 
@@ -127,44 +119,83 @@
     };
     $$("[data-tampil]").forEach(function (el) {
       var k = el.getAttribute("data-tampil");
-      if (t[k] === false || !adaIsi(data[k]) && data[k] !== true) el.hidden = true;
+      if (t[k] === false || (data[k] !== true && !adaIsi(data[k]))) el.hidden = true;
     });
   }
 
-  /* ---------- lily dari lukisan ---------- */
-  var LILY = C.lukisanLily || {};
-  function srcLily(jenis) { return LILY[jenis] || LILY.bunga || ""; }
-
-  // daun garis emas yang mengipas di belakang lily: [x, y, skala, putaran]
-  var DAUN = {
-    penuh: [[100, 196, 1.9, -48], [100, 196, 2.1, -22], [100, 196, 1.7, 26], [100, 196, 1.9, 52], [100, 196, 1.3, -72], [100, 196, 1.3, 76]],
-    bunga: [[100, 100, 1.5, -150], [100, 100, 1.7, -105], [100, 100, 1.4, 165], [100, 100, 1.6, 120], [100, 100, 1.3, 60]]
-  };
-  function isiRangkaian(el) {
-    var jenis = el.getAttribute("data-rangkaian") === "bunga" ? "bunga" : "penuh";
-    var daun = DAUN[jenis].map(function (d, i) {
-      return '<g transform="translate(' + d[0] + " " + d[1] + ") rotate(" + d[3] + ')"><use class="helai" style="--d:' + (i * 0.06).toFixed(2) +
-        's" href="#m-daun" x="' + (-10 * d[2]) + '" y="' + (-48 * d[2]) + '" width="' + (20 * d[2]) + '" height="' + (50 * d[2]) + '"/></g>';
-    }).join("");
-    el.innerHTML = '<svg class="daun-emas" viewBox="0 0 200 200">' + daun + "</svg>" +
-      '<div class="goyang"><img class="lily-lukis" alt="" decoding="async"></div>';
-    $("img", el).src = srcLily(jenis);
-  }
-  function isiPembatas() {
-    $$(".pembatas").forEach(function (el) {
-      el.innerHTML = '<span class="garis"></span><img alt="" decoding="async"><span class="garis"></span>';
-      $("img", el).src = srcLily("bunga");
+  /* ---------- kupu-kupu emas ---------- */
+  function lepasKupu() {
+    var tpl = $("#tpl-kupu");
+    if (!tpl) return;
+    var acak = function (a, b) { return a + Math.random() * (b - a); };
+    $$("[data-kupu]").forEach(function (titik) {
+      var n = Number(titik.getAttribute("data-kupu")) || 1;
+      for (var i = 0; i < n; i++) {
+        var k = tpl.content.firstElementChild.cloneNode(true);
+        k.style.left = acak(8, 82).toFixed(1) + "%";
+        k.style.top = acak(14, 62).toFixed(1) + "%";
+        k.style.width = acak(26, 40).toFixed(0) + "px";
+        k.style.setProperty("--dur", acak(12, 20).toFixed(1) + "s");
+        k.style.setProperty("--tunda", (-acak(0, 10)).toFixed(1) + "s");
+        ["1", "2", "3"].forEach(function (j) {
+          k.style.setProperty("--dx" + j, acak(-70, 70).toFixed(0) + "px");
+          k.style.setProperty("--dy" + j, acak(-90, 40).toFixed(0) + "px");
+        });
+        titik.parentNode.insertBefore(k, titik);
+      }
+      titik.remove();
     });
   }
-  function isiLilyTunggal(akar) {
-    $$("img[data-lily]", akar).forEach(function (img) { img.src = srcLily(img.getAttribute("data-lily")); });
+
+  /* ---------- kelopak berjatuhan di sampul ---------- */
+  var kelopakJalan = false;
+  function kelopakJatuh() {
+    var kanvas = $("#kelopak-jatuh");
+    if (!kanvas || mf.matches || !kanvas.getContext) return;
+    var ctx = kanvas.getContext("2d");
+    var warna = ["#E0707E", "#F4B3BC", "#B0172F", "#FFFFFF", "#F2C6C8", "#8E1B2C"];
+    var dpr = Math.min(2, window.devicePixelRatio || 1), W, H, daftar = [];
+    function ukur() {
+      W = kanvas.clientWidth; H = kanvas.clientHeight;
+      kanvas.width = W * dpr; kanvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    function baru(awal) {
+      return {
+        x: Math.random() * W, y: awal ? Math.random() * H : -20,
+        r: 5 + Math.random() * 7, vy: 0.35 + Math.random() * 0.6, ayun: Math.random() * 6.28,
+        putar: Math.random() * 6.28, vp: (Math.random() - 0.5) * 0.04, w: warna[Math.floor(Math.random() * warna.length)]
+      };
+    }
+    ukur();
+    window.addEventListener("resize", ukur);
+    for (var i = 0; i < 18; i++) daftar.push(baru(true));
+    kelopakJalan = true;
+    (function langkah() {
+      if (!kelopakJalan) return;
+      ctx.clearRect(0, 0, W, H);
+      daftar.forEach(function (p, i) {
+        p.ayun += 0.02; p.y += p.vy; p.x += Math.sin(p.ayun) * 0.6; p.putar += p.vp;
+        if (p.y > H + 20) daftar[i] = baru(false);
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.putar);
+        ctx.scale(1, 0.55 + 0.45 * Math.abs(Math.sin(p.ayun)));
+        ctx.fillStyle = p.w; ctx.globalAlpha = 0.85;
+        ctx.beginPath();
+        ctx.moveTo(0, -p.r);
+        ctx.bezierCurveTo(p.r, -p.r * 0.6, p.r * 0.7, p.r * 0.8, 0, p.r);
+        ctx.bezierCurveTo(-p.r * 0.7, p.r * 0.8, -p.r, -p.r * 0.6, 0, -p.r);
+        ctx.fill();
+        ctx.restore();
+      });
+      requestAnimationFrame(langkah);
+    })();
   }
 
   /* ---------- mempelai ---------- */
   function isiMempelai() {
     var wadah = $("#profil-wadah"), tpl = $("#tpl-profil");
-    var urut = Array.isArray(C.urutanMempelai) ? C.urutanMempelai : ["pria", "wanita"];
-    urut.forEach(function (kunci, i) {
+    urutan().forEach(function (kunci, i) {
       var o = (C.mempelai || {})[kunci];
       if (!o) return;
       if (i > 0) {
@@ -175,9 +206,7 @@
         wadah.appendChild(dan);
       }
       var n = tpl.content.cloneNode(true);
-      isiLilyTunggal(n);
-      var img = $("img", n), bingkai = $(".bingkai-daun", n);
-      if (i % 2 === 1) bingkai.classList.add("cermin");
+      var img = $(".foto-dalam img", n), bingkai = $(".bingkai-lengkung", n);
       if (o.foto) { img.src = o.foto; img.alt = "Foto " + (o.panggilan || ""); img.loading = "lazy"; }
       else bingkai.hidden = true;
       isi($(".panggilan", n), o.panggilan || "");
@@ -201,10 +230,8 @@
     if (!mulai) return "";
     if (!selesai || selesai <= mulai) selesai = new Date(mulai.getTime() + 3 * 3600 * 1000);
     function f(d) { return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, ""); }
-    var urut = Array.isArray(C.urutanMempelai) ? C.urutanMempelai : ["pria", "wanita"];
-    var nama = urut.map(function (k) { return ((C.mempelai || {})[k] || {}).panggilan; }).filter(Boolean).join(" & ");
     return "https://calendar.google.com/calendar/render?action=TEMPLATE" +
-      "&text=" + encodeURIComponent((ev.nama || "Acara") + " " + nama) +
+      "&text=" + encodeURIComponent((ev.nama || "Acara") + " " + namaPanggilan().join(" & ")) +
       "&dates=" + f(mulai) + "/" + f(selesai) +
       "&location=" + encodeURIComponent([ev.tempat, ev.alamat].filter(Boolean).join(", ")) +
       "&details=" + encodeURIComponent(location.href.split("#")[0]);
@@ -213,7 +240,6 @@
     var wadah = $("#daftar-acara"), tpl = $("#tpl-acara");
     (C.acara || []).forEach(function (ev) {
       var n = tpl.content.cloneNode(true);
-      isiLilyTunggal(n);
       var d = keTanggal(ev.tanggal, ev.mulai, ev);
       isi($(".nama-acara", n), ev.nama || "");
       isi($(".hari-tanggal", n), d ? formatTanggal(d, ev) : "");
@@ -245,7 +271,6 @@
         $("#swatch").appendChild(s);
       });
     }
-
     var linkS = C.streaming && C.streaming.link;
     if (linkS) $("#link-streaming").href = linkS;
   }
@@ -284,9 +309,6 @@
     (C.ceritaCinta || []).forEach(function (c) {
       var li = document.createElement("li");
       li.className = "muncul";
-      var penanda = document.createElement("img");
-      penanda.className = "penanda"; penanda.alt = ""; penanda.src = srcLily("bunga");
-      li.appendChild(penanda);
       var w = document.createElement("p"); w.className = "waktu"; isi(w, c.waktu || "");
       var h = document.createElement("h3"); isi(h, c.judul || "");
       var p = document.createElement("p"); isi(p, c.cerita || "");
@@ -318,7 +340,6 @@
       $("#lb-urutan").textContent = (fotoAktif + 1) + " / " + daftar.length;
     }
     function tampil(i) {
-      // foto lama memudar, foto baru masuk
       if (mf.matches) { pasang(i); return; }
       lbImg.classList.add("ganti");
       clearTimeout(tGanti);
@@ -453,12 +474,9 @@
       var o = document.createElement("option"); o.value = i; o.textContent = i + " orang"; sel.appendChild(o);
     }
     if (tamu.nama) $("#rsvp-nama").value = tamu.nama;
-    function aturJumlah() {
-      var tidak = $("#rsvp-tidak").checked;
-      $("#isian-jumlah").hidden = tidak;
-    }
-    $$('input[name="hadir"]', form).forEach(function (r) { r.addEventListener("change", aturJumlah); });
-
+    $$('input[name="hadir"]', form).forEach(function (r) {
+      r.addEventListener("change", function () { $("#isian-jumlah").hidden = $("#rsvp-tidak").checked; });
+    });
     var pesan = $("#pesan-form"), tombol = $("#kirim-rsvp");
     function tulisPesan(teks, jenis) { pesan.textContent = teks; pesan.className = "pesan-form " + (jenis || ""); }
 
@@ -469,14 +487,7 @@
       var ucapan = $("#rsvp-ucapan").value.trim();
       if (!nama) { tulisPesan("Mohon isi nama Anda.", "galat"); $("#rsvp-nama").focus(); return; }
       if (!pilih) { tulisPesan("Mohon pilih konfirmasi kehadiran.", "galat"); return; }
-      var data = {
-        aksi: "rsvp",
-        kode: tamu.kode,
-        nama: nama,
-        hadir: pilih.value,
-        jumlah: pilih.value === "ya" ? Number(sel.value) : 0,
-        ucapan: ucapan
-      };
+      var data = { aksi: "rsvp", kode: tamu.kode, nama: nama, hadir: pilih.value, jumlah: pilih.value === "ya" ? Number(sel.value) : 0, ucapan: ucapan };
       function berhasil() {
         if (ucapan) {
           semuaUcapan.unshift({ nama: nama, hadir: data.hadir === "ya", ucapan: ucapan, waktu: new Date().toISOString() });
@@ -490,16 +501,12 @@
       if (modeDemo) { berhasil(); return; }
       tombol.disabled = true; tombol.textContent = "Mengirim…"; tulisPesan("");
       kirim(data)
-        .then(function (res) {
-          if (!res || !res.ok) throw new Error(res && res.pesan || "Gagal");
-          berhasil();
-        })
+        .then(function (res) { if (!res || !res.ok) throw new Error(res && res.pesan || "Gagal"); berhasil(); })
         .catch(function (err) {
           tulisPesan("Gagal mengirim: " + (err && err.message && err.message !== "Failed to fetch" ? err.message : "periksa koneksi internet lalu coba lagi."), "galat");
         })
         .then(function () { tombol.disabled = false; tombol.textContent = "Kirim"; });
     });
-
     $("#ucapan-lagi").addEventListener("click", function () { tampilSampai += 10; tampilkanUcapan(); });
   }
 
@@ -508,7 +515,7 @@
     mempelai: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/>',
     acara: '<path d="M7 3v3M17 3v3M4 9h16M5.5 5h13A1.5 1.5 0 0 1 20 6.5v12a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5v-12A1.5 1.5 0 0 1 5.5 5Z"/>',
     galeri: '<path d="M4 6.5A1.5 1.5 0 0 1 5.5 5h13A1.5 1.5 0 0 1 20 6.5v11a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5v-11Z"/><path d="m4 16 4.5-4.5 4 4 2.5-2.5L20 18"/><circle cx="15.5" cy="9.5" r="1.3"/>',
-    rsvp: '<path d="M5 5.5h14A1.5 1.5 0 0 1 20.5 7v8a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5Z"/>',
+    rsvp: '<path d="M5 5.5h14A1.5 1.5 0 0 1 20.5 7v8a1.5 1.5 0 0 1-1.5 1.5h-7l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5Z"/>'
   };
   var LABEL = { mempelai: "Mempelai", acara: "Acara", galeri: "Galeri", rsvp: "Ucapan" };
   function buatNav() {
@@ -533,35 +540,63 @@
     }
   }
 
-  /* ---------- musik ---------- */
-  var audio = $("#audio"), tMusik = $("#tombol-musik");
+  /* ---------- musik & pemutar lagu ---------- */
+  var audio = $("#audio"), tMusik = $("#tombol-musik"), pemutar = $("#pemutar");
+  function menit(d) { d = Math.max(0, Math.floor(d || 0)); return Math.floor(d / 60) + ":" + pad(d % 60); }
+  function segarkanStatus() {
+    var main = !audio.paused;
+    tMusik.classList.toggle("berputar", main);
+    tMusik.classList.toggle("jeda", !main);
+    tMusik.setAttribute("aria-label", main ? "Jeda musik" : "Putar musik");
+    if (pemutar) {
+      pemutar.classList.toggle("main", main);
+      $("#lagu-putar").setAttribute("aria-label", main ? "Jeda lagu" : "Putar lagu");
+    }
+  }
   function aturMusik(main) {
     if (!C.musik) return;
     if (main) {
       var p = audio.play();
-      if (p && p.catch) p.catch(function () { tMusik.classList.add("jeda"); tMusik.classList.remove("berputar"); });
-      tMusik.classList.add("berputar"); tMusik.classList.remove("jeda");
-      tMusik.setAttribute("aria-label", "Jeda musik");
+      if (p && p.catch) p.catch(segarkanStatus);
     } else {
       audio.pause();
-      tMusik.classList.remove("berputar"); tMusik.classList.add("jeda");
-      tMusik.setAttribute("aria-label", "Putar musik");
     }
   }
-  if (C.musik) {
+  function siapkanMusik() {
+    if (!C.musik) return;
     audio.src = C.musik;
     tMusik.addEventListener("click", function () { aturMusik(audio.paused); });
+    audio.addEventListener("play", segarkanStatus);
+    audio.addEventListener("pause", segarkanStatus);
     document.addEventListener("visibilitychange", function () {
       if (document.hidden && !audio.paused) { audio.pause(); audio.dataset.lanjut = "1"; }
       else if (!document.hidden && audio.dataset.lanjut) { delete audio.dataset.lanjut; aturMusik(true); }
     });
+    if (!pemutar) return;
+    pemutar.hidden = false;
+    var posisi = $("#lagu-posisi"), geser = false;
+    $("#lagu-putar").addEventListener("click", function () { aturMusik(audio.paused); });
+    $("#lagu-mundur").addEventListener("click", function () { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+    $("#lagu-maju").addEventListener("click", function () { if (audio.duration) audio.currentTime = Math.min(audio.duration - 1, audio.currentTime + 10); });
+    audio.addEventListener("loadedmetadata", function () { $("#lagu-total").textContent = menit(audio.duration); });
+    audio.addEventListener("timeupdate", function () {
+      $("#lagu-kini").textContent = menit(audio.currentTime);
+      if (!geser && audio.duration) posisi.value = Math.round(audio.currentTime / audio.duration * 1000);
+    });
+    posisi.addEventListener("input", function () {
+      geser = true;
+      if (audio.duration) $("#lagu-kini").textContent = menit(posisi.value / 1000 * audio.duration);
+    });
+    posisi.addEventListener("change", function () {
+      if (audio.duration) audio.currentTime = posisi.value / 1000 * audio.duration;
+      geser = false;
+    });
   }
 
   /* ---------- animasi muncul ---------- */
-  var bisaAnimasi = !mf.matches && "IntersectionObserver" in window;
   function tampakkan(daftar) { daftar.forEach(function (e) { e.classList.add("tampak"); }); }
   function mulaiAnimasi() {
-    var el = $$(".kolom .muncul, .kolom .bingkai-anim, .kolom [data-rangkaian]");
+    var el = $$(".kolom .muncul, .kolom .bingkai-anim");
     if (!bisaAnimasi) { tampakkan(el); return; }
     var io = new IntersectionObserver(function (entri) {
       entri.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("tampak"); io.unobserve(en.target); } });
@@ -569,30 +604,30 @@
     el.forEach(function (e) { io.observe(e); });
   }
 
-  /* ---------- buka undangan ---------- */
+  /* ---------- buka undangan (amplop) ---------- */
   var sudahDibuka = false;
   function bukaUndangan(langsung) {
     if (sudahDibuka) return;
     sudahDibuka = true;
     var s = $("#sampul");
-    if (langsung === true) s.hidden = true;
-    mulaiAnimasi();
-    tampakkan($$(".panel-samping [data-rangkaian]"));
-    s.classList.add("terbuka");
+    if (C.musik) { tMusik.hidden = false; aturMusik(true); }   // harus di dalam ketukan agar musik boleh berbunyi
     document.documentElement.classList.remove("terkunci");
     $("#nav-bawah").hidden = !$("#nav-bawah").children.length;
-    if (C.musik) { tMusik.hidden = false; aturMusik(true); }
     window.scrollTo(0, 0);
-    setTimeout(function () { s.hidden = true; }, mf.matches ? 50 : 1600);
+    if (langsung === true || mf.matches) {
+      s.hidden = true; kelopakJalan = false; mulaiAnimasi(); return;
+    }
+    $("#amplop").classList.add("dibuka");
+    s.classList.add("terbuka");
+    setTimeout(mulaiAnimasi, 1500);
+    setTimeout(function () { s.hidden = true; kelopakJalan = false; }, 2700);
   }
 
   /* ---------- jalankan ---------- */
   function mulai() {
     isiTeks();
     aturTampil();
-    $$("[data-rangkaian]").forEach(isiRangkaian);
-    isiPembatas();
-    isiLilyTunggal(document);
+    lepasKupu();
     isiMempelai();
     isiAcara();
     hitungMundur();
@@ -602,16 +637,13 @@
     siapkanRsvp();
     muatUcapan();
     buatNav();
+    siapkanMusik();
     catatDibuka();
+    kelopakJatuh();
     document.documentElement.classList.add("terkunci");
-    if (bisaAnimasi) {
-      // sampul: bingkai foto terbuka dan bunga mekar
-      document.documentElement.classList.add("siap-animasi");
-      setTimeout(function () { tampakkan($$("#sampul .bingkai-anim, #sampul [data-rangkaian]")); }, 120);
-    } else {
-      tampakkan($$("[data-rangkaian], .bingkai-anim"));
-    }
+    if (bisaAnimasi) document.documentElement.classList.add("siap-animasi");
     $("#buka-undangan").addEventListener("click", bukaUndangan);
+    $("#segel").addEventListener("click", bukaUndangan);
     if (location.hash && location.hash.length > 1) {
       // link langsung ke bagian tertentu: lewati sampul
       bukaUndangan(true);
