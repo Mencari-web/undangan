@@ -26,7 +26,8 @@ window.UNDANGAN = {
       keterangan: "Putri pertama dari",
       orangTua: "Bapak Sulani\n& Ibu Eni",
       instagram: "",                           // contoh: "devi" (tanpa @). Kosongkan bila tidak ada.
-      foto: "assets/img/wanita.jpg"
+      foto: "assets/img/wanita.jpg",
+      fokus: "62% 38%"                         // titik fokus foto di bingkai (kiri-kanan, atas-bawah)
     },
     pria: {
       panggilan: "Faiz",
@@ -34,18 +35,22 @@ window.UNDANGAN = {
       keterangan: "Putra ketiga dari",
       orangTua: "Bapak Saleh\n& Ibu Susilawati",
       instagram: "",
-      foto: "assets/img/pria.jpg"
+      foto: "assets/img/pria.jpg",
+      fokus: "50% 32%"
     }
   },
-  fotoUtama: "assets/img/utama.jpg",          // foto di dalam gapura kayu (bagian pembuka & panel kiri)
+  fotoUtama: "assets/img/utama.jpg",          // foto di bingkai mutiara pada sampul
+  fotoUtamaFokus: "50% 40%",                  // titik fokus foto: geser angka bila wajah terpotong
 
-
-  /* 3. PEMBUKA ------------------------------------------------------------- */
+  /* 3. PEMBUKA -------------------------------------------------------------
+     bismillah & kutipan.arab: teks Arab (boleh dikosongkan bila tidak dipakai). */
+  bismillah: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
   salamPembuka: "Assalamu'alaikum Warahmatullahi Wabarakatuh",
-  kalimatPembuka: "Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud menyelenggarakan pernikahan putra-putri kami.",
+  kalimatPembuka: "Dengan memohon rahmat dan ridho Allah SWT, kami mengundang Bapak/Ibu/Saudara/i untuk hadir di hari bahagia kami.",
   kutipan: {
-    teks: "Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.",
-    sumber: "QS. Ar-Rum: 21"
+    arab: "وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُمْ مِنْ أَنْفُسِكُمْ أَزْوَاجًا لِتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُمْ مَوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِقَوْمٍ يَتَفَكَّرُونَ",
+    teks: "Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang. Sungguh, pada yang demikian itu benar-benar terdapat tanda-tanda (kebesaran Allah) bagi kaum yang berpikir.",
+    sumber: "QS. Ar-Rum : 21"
   },
 
   /* 4. ACARA ----------------------------------------------------------------
@@ -95,14 +100,22 @@ window.UNDANGAN = {
 
   /* 6. GALERI ---------------------------------------------------------------
      Taruh foto di folder assets/img lalu tulis namanya di sini.
+     Foto tampil berserakan di "dinding kenangan" yang bisa dicubit/digeser.
+     Makin banyak foto, makin ramai dindingnya (6–30 foto ideal).
      Kompres dulu foto Anda (lebar ±1200px) agar undangan cepat dibuka. */
+  // Kutipan kecil yang ikut terselip di dinding foto (kosongkan bila tidak perlu)
+  kutipanGaleri: "Setiap foto adalah doa kecil yang kami simpan, agar perjalanan ini selalu kami kenang dengan syukur.",
   galeri: [
     "assets/img/galeri-1.jpg",
+    "assets/img/utama.jpg",
     "assets/img/galeri-2.jpg",
+    "assets/img/wanita.jpg",
     "assets/img/galeri-3.jpg",
+    "assets/img/pria.jpg",
     "assets/img/galeri-4.jpg",
     "assets/img/galeri-5.jpg",
-    "assets/img/galeri-6.jpg"
+    "assets/img/galeri-6.jpg",
+    "assets/img/galeri-7.jpg"
   ],
 
   /* 7. SIARAN LANGSUNG (opsional) ------------------------------------------ */
@@ -126,6 +139,7 @@ window.UNDANGAN = {
   ],
 
   /* 9. PENUTUP --------------------------------------------------------------- */
+  judulPenutup: "Terima Kasih",
   kalimatPenutup: "Merupakan suatu kehormatan dan kebahagiaan bagi kami apabila Bapak/Ibu/Saudara/i berkenan hadir dan memberikan doa restu.",
   salamPenutup: "Wassalamu'alaikum Warahmatullahi Wabarakatuh",
   keluarga: "Keluarga Bapak Sulani \n& Keluarga Bapak Saleh",
@@ -137,11 +151,14 @@ window.UNDANGAN = {
      "assets/musik/lagu.mp3". Pakai musik bebas royalti / milik sendiri.
      Kosong = tombol musik disembunyikan. */
   musik: "assets/musik/lagu-kami.mp3",
-  judulLagu: "",                              // judul lagu yang tampil di pemutar, contoh: "Perfect — Ed Sheeran"
+  judulLagu: "Ordinary — Alex Warren",        // tampil di bawah piringan hitam. Kosongkan bila tidak perlu
+  labelMusik: "Play the music!",
 
   /* 11. TAMPILKAN / SEMBUNYIKAN BAGIAN --------------------------------------- */
   tampilkan: {
     kutipan: true,
+    fotoSampul: true,                           // foto di sampul
+    fotoMempelai: true,                         // foto di atas nama mempelai
     ceritaCinta: false,
     galeri: true,
     streaming: true,
@@ -149,7 +166,15 @@ window.UNDANGAN = {
     turutMengundang: true
   },
 
-  /* 12. TEKS SAMPUL ---------------------------------------------------------- */
+  /* 12. ANIMASI PEMBUKA ----------------------------------------------------
+     awal: tampilan pertama sebelum sampul -> "tirai" (tirai teater), "amplop", atau "" (langsung sampul)
+     buka: efek tombol "Buka Undangan"   -> "amplop", "tirai", atau "zoom" */
+  pembukaan: {
+    awal: "tirai",
+    buka: "amplop"
+  },
+
+  /* 13. TEKS SAMPUL ---------------------------------------------------------- */
   sampul: {
     sapaan: "Kepada Yth.",
     sapaanTamu: "Bapak/Ibu/Saudara/i",       // tampil bila link tidak memuat nama tamu

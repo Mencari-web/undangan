@@ -9,6 +9,19 @@ Template undangan pernikahan yang bisa Anda ubah sendiri, plus sambungan ke Goog
 
 Semua platform yang dipakai gratis.
 
+> **Versi "Taman Beludru"** — lukisan hutan vintage, gapura janur, bunga 3D marun (calla, mawar, hydrangea, lily), lumut, beludru damask, untaian mutiara, dan bingkai besi tempa. Sambungan Google Sheets, link per tamu, RSVP, dan ucapan sama persis dengan versi sebelumnya.
+
+## Sudah memakai versi sebelumnya? (update cepat)
+
+Spreadsheet, Apps Script, dan link tamu **tidak perlu diubah**. Cukup ganti file website di GitHub:
+
+1. Buka repository `undangan` Anda di GitHub → **Add file** → **Upload files**.
+2. Seret **semua isi** folder hasil ekstrak (`index.html`, `config.js`, `README.md`, folder `assets`, folder `google-apps-script`) ke halaman tersebut, lalu **Commit changes**. File dengan nama sama akan tertimpa.
+3. **Penting — `config.js`:** file baru ini sudah berisi data Anda (Devi & Faiz, foto, acara, alamat, lagu) **dan beberapa isian baru** (`bismillah`, `kutipan.arab`, `fotoUtamaFokus`, `fokus`, `labelMusik`, `judulPenutup`, `tampilkan.fotoSampul`). Jika sebelumnya Anda sudah mengisi `apiUrl` atau mengubah teks lain di GitHub, salin ulang perubahan itu ke `config.js` baru sebelum diunggah, atau edit lagi setelah diunggah.
+4. Tunggu ±1 menit, lalu buka undangan dan muat ulang (tarik layar ke bawah di HP).
+
+File gambar lama di `assets/img/hiasan/` (rangkaian-*.webp, gapura-kayu.webp, latar-putih.webp, lily-*.webp) tidak dipakai lagi. Boleh dibiarkan atau dihapus.
+
 | Keperluan | Platform | Catatan |
 |---|---|---|
 | Hosting website | **GitHub Pages** | Gratis, link seperti `namaanda.github.io/undangan` |
@@ -30,7 +43,7 @@ undangan-digital/
 │   ├── css/style.css       ← warna, huruf, tampilan
 │   ├── js/main.js          ← logika (biasanya tidak perlu diubah)
 │   ├── img/                ← foto (ganti file contoh dengan foto Anda)
-│   │   └── hiasan/         ← rangkaian bunga, gapura kayu, tekstur latar
+│   │   └── hiasan/         ← bunga 3D, gapura, kartu, beludru, mutiara, latar
 │   └── musik/              ← taruh file .mp3 di sini
 └── google-apps-script/
     ├── Code.gs             ← ditempel ke Apps Script di spreadsheet
@@ -52,8 +65,8 @@ undangan-digital/
    - Tanggal ditulis `"2026-12-12"`, jam `"08:00"`.
    - Link Google Maps: buka lokasi di Google Maps → **Bagikan** → **Salin link**.
    - Bagian yang tidak dipakai: ubah ke `false` di bagian `tampilkan`.
-3. **Foto**: kompres dulu di squoosh.app (lebar ±1200 px, format JPG), lalu ganti file di `assets/img/` **dengan nama yang sama** (`pria.jpg`, `wanita.jpg`, `utama.jpg`, `galeri-1.jpg` dst.). Mau lebih banyak foto galeri? Tambahkan nama filenya di daftar `galeri` di `config.js`.
-4. **Musik** (opsional): taruh file `.mp3` di `assets/musik/`, lalu isi `musik: "assets/musik/namafile.mp3"`. Pakai musik bebas royalti atau yang Anda punya izinnya.
+3. **Foto**: kompres dulu di squoosh.app (lebar ±1200 px, format JPG), lalu ganti file di `assets/img/` **dengan nama yang sama** (`utama.jpg` untuk sampul, `pria.jpg`, `wanita.jpg`, `galeri-1.jpg` dst.). Foto tampil di bingkai melengkung bermutiara; bila wajah terpotong, ubah titik fokusnya lewat `fotoUtamaFokus` dan `fokus` di tiap mempelai (contoh `"50% 30%"`: angka pertama kiri-kanan, kedua atas-bawah). Mau lebih banyak foto galeri? Tambahkan nama filenya di daftar `galeri` di `config.js`.
+4. **Musik** (opsional): taruh file `.mp3` di `assets/musik/`, lalu isi `musik: "assets/musik/namafile.mp3"`. Judul yang tampil di bawah piringan hitam diisi lewat `judulLagu`. Pakai musik bebas royalti atau yang Anda punya izinnya.
 5. **Pratinjau link di WhatsApp**: buka `index.html`, ubah 4 baris `og:` di bagian atas (judul, deskripsi, alamat gambar). Alamat gambar harus lengkap, misalnya `https://namaanda.github.io/undangan/assets/img/og-image.jpg`. Ganti juga `assets/img/og-image.jpg` dengan gambar Anda (1200×630 px).
 6. Simpan, lalu muat ulang browser untuk melihat hasilnya.
 
@@ -158,19 +171,22 @@ Untuk menyembunyikan ucapan tertentu dari website, ubah kolom **Tampilkan** di s
 
 ## Mengubah tampilan
 
-- **Warna & huruf:** blok `:root` paling atas di `assets/css/style.css`: `--merah`, `--pink`, `--emas`, `--coklat`, `--hijau`, `--putih`. Huruf (Pinyon Script & Cormorant Garamond) diambil dari Google Fonts lewat link di `index.html`.
+- **Warna & huruf:** blok `:root` paling atas di `assets/css/style.css`: `--marun`, `--beludru`, `--pink`, `--emas`, `--kertas`, `--kabut`. Huruf (Parisienne, Cormorant Garamond, dan Amiri untuk teks Arab) diambil dari Google Fonts lewat link di `index.html`.
 - **Urutan bagian:** di `index.html`, setiap bagian dibungkus `<section id="...">`. Pindahkan blok `<section>…</section>` untuk mengubah urutan.
-- **Teks judul bagian** (mis. "Rangkaian Acara"): langsung di `index.html`.
-- **Tampilan profil mempelai, kartu acara, ucapan:** blok `<template>` di bagian bawah `index.html`.
-- **Rangkaian bunga** ada di folder `assets/img/hiasan/` (gambar WebP transparan, dilukis bergaya akrilik senada lily lukisan Anda):
-  - `rangkaian-gantung.webp` untaian atas, `rangkaian-bawah.webp` hamparan bawah,
-  - `rangkaian-sudut.webp` sudut atas (dicerminkan otomatis untuk sudut kanan), `rangkaian-pojok-bawah.webp` buket tegak,
-  - `rangkaian-kecil.webp` pembatas & hiasan kartu, `gapura-kayu.webp` bingkai kayu ukir, `latar-putih.webp` tekstur latar.
-  Lily pink, putih, dan merah di dalam rangkaian berasal dari lukisan Anda; potongan aslinya tersimpan sebagai `lily-lukisan-asli.webp` dan `lily-kepala-asli.webp`. Ganti file dengan nama yang sama untuk memakai gambar lain.
-- **Sampul amplop:** segel lilin memakai inisial nama panggilan otomatis. Tamu bisa mengetuk segel atau tombol "Buka Undangan".
-- **Pemutar lagu:** muncul otomatis bila `musik` di `config.js` terisi. Judulnya diisi lewat `judulLagu`.
-- **Kupu-kupu & kelopak jatuh:** jumlah kupu-kupu diatur lewat atribut `data-kupu="3"` di `index.html`; hapus elemennya bila tidak ingin. Kelopak jatuh hanya tampil di sampul.
-- **Untuk acara non-Muslim:** ubah `salamPembuka`, `kutipan`, `salamPenutup`, dan `rsvp.labelHadir` di `config.js`.
+- **Tampilan profil mempelai, kartu acara, lokasi, ucapan:** blok `<template>` di bagian bawah `index.html`.
+- **Gambar hiasan** ada di `assets/img/hiasan/` (WebP transparan, dirender sebagai objek 3D). Ganti file dengan nama yang sama untuk memakai gambar lain:
+  - Sampul: `latar-toile.webp` (lukisan hutan, juga latar seluruh halaman), `pohon-kiri/kanan.webp`, `janur-kiri/kanan.webp` (gapura merah berumbai), `taman.webp` (taman depan).
+  - Bunga: `kolom-gelap-*.webp` & `kolom-terang-*.webp` (rangkaian tegak di sisi kartu), `bed-1/2.webp` (lumut + calla di bawah kartu).
+  - Kartu: `kartu-ayat-*.webp` dan `kartu-pink-*.webp` (dipotong atas/tengah/bawah agar tinggi kartu bisa menyesuaikan isi), `gapura-pink.webp`.
+  - Pembuka: `tirai-kain.webp` (beludru berlipit), `tirai-atas.webp` (kanopi), `tirai-mutiara.webp`, `tirai-rumbai.webp`, `tirai-plakat.webp`.
+  - Lainnya: `bingkai-foto.webp` (bingkai foto beludru bermutiara), `beludru.webp` (tekstur damask), `tetes.webp`, `gebyok.webp` (kayu ukir), `mutiara.webp`, `ornamen-tetes.webp`, `piringan.webp` (piringan hitam).
+- **Animasi pembuka** (`pembukaan` di `config.js`): `awal` adalah tampilan pertama sebelum sampul, yaitu `"tirai"` (tirai teater beludru dengan plakat monogram; diketuk, tirai tersingkap dan lagu mulai), `"amplop"` (amplop bersegel), atau `""` untuk langsung ke sampul. `buka` adalah efek tombol "Buka Undangan": `"amplop"` (amplop naik, segel lepas, kartu keluar lalu membesar memenuhi layar), `"tirai"` (tirai menutup lalu terbuka ke isi undangan), atau `"zoom"`. Link yang memakai `#bagian` (misalnya `#rsvp`) melewati semua animasi ini.
+- **Gerak & efek 3D:** sampul bergerak mengikuti gerakan mouse/kemiringan HP (Android); pohon, gapura janur, rangkaian bunga, dan bedeng calla bergoyang tertiup angin; mutiara dan bingkai foto berkilau; foto perlahan memperbesar; kartu muncul dengan sudut miring. Semua efek otomatis mati bila HP tamu mengaktifkan "kurangi gerakan".
+- **Kupu-kupu & bunga bertaburan:** kupu-kupu (emas, pink, marun) dengan sayap 3D yang mengepak muncul di sampul dan beberapa bagian. Jumlah & warnanya diatur lewat penanda `<span data-kupu="3" data-jenis="emas,pink,emas">` di `index.html` (hapus penandanya bila tidak ingin). Kelopak dan bunga kecil berjatuhan di sampul dan sepanjang undangan.
+- **Piringan hitam:** ketuk untuk memutar/menjeda lagu; piringan kecil di pojok kanan bawah juga bisa dipakai. Tulisan "Play the music!" diubah lewat `labelMusik`.
+- **Galeri "dinding kenangan":** foto tampil berserakan di atas beludru bermotif timbul. Tamu bisa mencubit untuk zoom, menggeser saat sudah diperbesar, ketuk dua kali (atau klik dua kali di komputer) untuk zoom cepat, dan mengetuk foto untuk layar penuh. Tombol di kanan bawah: perbesar, perkecil, lihat semua, dan acak susunan. Selama belum diperbesar, usapan di dinding tetap menggulir halaman seperti biasa. Saat ini dinding berisi 10 foto: 4 foto asli Anda (`galeri-1.jpg`, `utama.jpg`, `wanita.jpg`, `pria.jpg`) dan 6 foto contoh (`galeri-2.jpg` s.d. `galeri-7.jpg`) yang tinggal ditimpa dengan foto Anda. Mau lebih banyak? Tambahkan nama file di daftar `galeri`; susunan dinding menyesuaikan sendiri. Kutipan kecil di dinding diatur lewat `kutipanGaleri`; hiasan bunga, mutiara, dan segel lilin ada di `assets/img/hiasan/tabur-*.webp` dan teksturnya `beludru-timbul.webp`.
+- **Foto:** sembunyikan foto sampul dengan `tampilkan.fotoSampul: false`, atau foto mempelai dengan `tampilkan.fotoMempelai: false` (gaya "tanpa foto" seperti referensi).
+- **Untuk acara non-Muslim:** kosongkan `bismillah` dan `kutipan.arab`, lalu ubah `salamPembuka`, `kutipan`, `salamPenutup`, dan `rsvp.labelHadir` di `config.js`.
 - **Peta di dalam halaman** (opsional): Google Maps → Bagikan → **Sematkan peta** → salin isi `src="..."` ke `petaEmbed` di `config.js`.
 
 ## Jika ada masalah
