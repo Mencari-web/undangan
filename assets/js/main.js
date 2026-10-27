@@ -168,6 +168,10 @@
     var KELOPAK = [["#3E0915", "#7A1A30"], ["#5E0F22", "#A8304A"], ["#C9677A", "#F3C3CB"], ["#E8A2AE", "#FCE6E9"], ["#F6EEE2", "#FFFFFF"]];
     var BUNGA = [["#F4C3CB", "#E8A2AE", "#E2BD72"], ["#FFFDF8", "#F3E6D8", "#E2BD72"], ["#C9677A", "#8E2A40", "#F3DFA2"]];
     var dpr = Math.min(2, window.devicePixelRatio || 1), W = 0, H = 0, daftar = [], jalan = false;
+    // lembar sprite kelopak ilustrasi (4 x 2 sel): 0-4 kelopak, 5-7 bunga kecil
+    var atlas = new Image(), atlasSiap = false;
+    atlas.onload = function () { atlasSiap = true; };
+    atlas.src = "assets/img/hiasan/tabur-kelopak.webp";
     function ukur() {
       W = kanvas.clientWidth; H = kanvas.clientHeight;
       kanvas.width = W * dpr; kanvas.height = H * dpr;
@@ -180,7 +184,8 @@
         r: (bunga ? 5 : 5) + Math.random() * (opsi.besar || 7), vy: (opsi.laju || 0.5) * (0.6 + Math.random() * 0.9),
         ayun: Math.random() * 6.28, putar: Math.random() * 6.28, vp: (Math.random() - 0.5) * 0.035,
         balik: Math.random() * 6.28, vb: 0.02 + Math.random() * 0.03,
-        w: bunga ? BUNGA[Math.floor(Math.random() * BUNGA.length)] : KELOPAK[Math.floor(Math.random() * KELOPAK.length)]
+        w: bunga ? BUNGA[Math.floor(Math.random() * BUNGA.length)] : KELOPAK[Math.floor(Math.random() * KELOPAK.length)],
+        sel: bunga ? 5 + Math.floor(Math.random() * 3) : [0, 0, 1, 1, 2, 3, 4][Math.floor(Math.random() * 7)]
       };
     }
     function kelopak(p, r) {
@@ -214,7 +219,10 @@
         ctx.translate(p.x, p.y); ctx.rotate(p.putar);
         ctx.scale(0.35 + 0.65 * Math.abs(Math.cos(p.balik)), 0.6 + 0.4 * Math.abs(Math.sin(p.ayun)));
         ctx.globalAlpha = opsi.alpha || 0.9;
-        if (p.bunga) bunga(p); else kelopak(p, p.r);
+        if (atlasSiap) {
+          var ss = atlas.naturalWidth / 4, d = p.r * (p.bunga ? 2.5 : 2.8);
+          ctx.drawImage(atlas, (p.sel % 4) * ss, Math.floor(p.sel / 4) * ss, ss, ss, -d / 2, -d / 2, d, d);
+        } else if (p.bunga) bunga(p); else kelopak(p, p.r);
         ctx.restore();
       });
       requestAnimationFrame(langkah);

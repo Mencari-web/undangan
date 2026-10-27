@@ -1,10 +1,11 @@
 /* ==========================================================================
-   TEMA "TAMAN BELUDRU" — lukisan pemandangan vintage, bunga 3D marun,
-   gapura janur, beludru damask, mutiara & bingkai besi tempa.
+   TEMA "TAMAN BELUDRU" — ilustrasi botani vintage (cetak ukir diwarnai tangan)
+   dengan volume 3D: bunga marun, gapura janur, lanskap toile di atas kertas antik,
+   beludru damask, mutiara & bingkai besi tempa.
    Warna & huruf diatur di :root.
    ========================================================================== */
 :root {
-  --kabut: #e8e8df;
+  --kabut: #f1e8d6;
   --kertas: #f6eee2;
   --marun: #6e1528;
   --marun-tua: #3e0915;
@@ -59,7 +60,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 }
 .adegan .latar::after { /* kabut lembut di tengah agar tulisan terbaca */
   content: ""; position: absolute; inset: 0;
-  background: radial-gradient(ellipse 60% 45% at 50% 46%, rgba(240, 240, 232, .85), rgba(240, 240, 232, 0) 70%);
+  background: radial-gradient(ellipse 60% 45% at 50% 46%, rgba(243, 235, 219, .88), rgba(243, 235, 219, 0) 70%);
 }
 .adegan .pohon { top: -11%; width: min(60vw, 420px); }
 .adegan .pohon.kiri { left: -24%; transform-origin: 0 0; }
@@ -94,7 +95,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 }
 .sampul .sampul-isi:has(.sampul-foto:not([hidden])) { margin-top: -4vh; }
 .judul-kecil {
-  text-shadow: 0 0 8px rgba(240, 240, 232, .95), 0 0 3px rgba(240, 240, 232, .95);
+  text-shadow: 0 0 8px rgba(243, 235, 219, .95), 0 0 3px rgba(243, 235, 219, .95);
   font-size: 15px; letter-spacing: .32em; text-transform: uppercase;
   color: var(--marun); font-weight: 500;
 }
@@ -104,7 +105,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   line-height: .95;
   margin: 10px 0 8px;
   display: flex; flex-direction: column; align-items: center;
-  text-shadow: 0 0 14px rgba(240, 240, 232, .95), 0 0 4px rgba(240, 240, 232, .9), 0 6px 18px rgba(110, 21, 40, .18);
+  text-shadow: 0 0 14px rgba(243, 235, 219, .95), 0 0 4px rgba(243, 235, 219, .9), 0 6px 18px rgba(110, 21, 40, .18);
 }
 .nama-besar .nama { font-size: clamp(62px, 19vw, 100px); }
 .nama-besar .dan { font-size: clamp(46px, 13vw, 66px); margin: -2px 0 -6px; }
@@ -112,7 +113,7 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .sampul-foto:not([hidden]) ~ .nama-besar { flex-direction: row; align-items: baseline; gap: .18em; margin: 2px 0 2px; }
 .sampul-foto:not([hidden]) ~ .nama-besar .nama { font-size: clamp(44px, min(13.5vw, 7.4vh), 72px); }
 .sampul-foto:not([hidden]) ~ .nama-besar .dan { font-size: clamp(32px, min(9vw, 5vh), 48px); margin: 0; }
-.tanggal-sampul { text-shadow: 0 0 8px rgba(240, 240, 232, .95); font-size: 15px; letter-spacing: .3em; color: var(--marun); font-weight: 500; }
+.tanggal-sampul { text-shadow: 0 0 8px rgba(243, 235, 219, .95); font-size: 15px; letter-spacing: .3em; color: var(--marun); font-weight: 500; }
 .kepada {
   margin-top: 2.4vh;
   padding: 8px 22px 10px;
@@ -273,7 +274,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .amplop-layar.tampil .amplop { transform: none; }
 .amplop-belakang {
   position: absolute; inset: 0; border-radius: 8px;
-  background: linear-gradient(160deg, #efe3d1, #dccab1);
+  background: url("../img/hiasan/kertas-serat.webp") 0 0 / 256px, linear-gradient(160deg, #efe3d1, #dccab1);
+  background-blend-mode: multiply;
   box-shadow: 0 30px 50px rgba(15, 2, 6, .55), 0 4px 10px rgba(15, 2, 6, .3);
 }
 .amplop-belakang::before { /* lapisan dalam beludru damask */
@@ -283,7 +285,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .amplop-surat {
   position: absolute; left: 7%; right: 7%; top: 6%; height: 86%; z-index: 2;
   display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
-  background: #f1c4cb linear-gradient(170deg, rgba(255, 255, 255, .35), rgba(0, 0, 0, .04));
+  background: url("../img/hiasan/kertas-serat.webp") 0 0 / 256px, linear-gradient(170deg, rgba(255, 255, 255, .35), rgba(0, 0, 0, .04)), #f1c4cb;
+  background-blend-mode: multiply, normal, normal;
   border-radius: 4px; color: var(--marun-tua);
   box-shadow: inset 0 0 0 5px #f1c4cb, inset 0 0 0 6.5px rgba(110, 21, 40, .55), inset 0 0 0 9px #f1c4cb, inset 0 0 0 10px rgba(110, 21, 40, .35), 0 6px 14px rgba(0, 0, 0, .25);
   transition: transform .8s cubic-bezier(.3, 1.1, .4, 1), border-radius .8s;
@@ -305,13 +308,25 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
   filter: drop-shadow(0 -2px 3px rgba(60, 30, 10, .25));
   transition: opacity .4s ease, transform .6s ease;
 }
+.amplop-depan::after { /* serat kertas */
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: url("../img/hiasan/kertas-serat.webp") 40px 20px / 256px; mix-blend-mode: multiply;
+}
+/* rangkaian bunga ilustrasi di sudut amplop */
+.amplop-bunga { position: absolute; z-index: 5; left: -7%; bottom: -9%; width: 40%; aspect-ratio: 1; pointer-events: none; transition: opacity .5s ease; }
+.amplop-bunga img { position: absolute; filter: drop-shadow(0 3px 3px rgba(40, 10, 10, .3)); }
+.amplop-bunga .ab-pakis { width: 70%; left: 30%; bottom: 36%; rotate: -18deg; }
+.amplop-bunga .ab-calla { width: 78%; left: 12%; bottom: 22%; rotate: 8deg; }
+.amplop-bunga .ab-mawar { width: 52%; left: 4%; bottom: 4%; }
+.amplop-bunga .ab-kecil { width: 30%; left: 50%; bottom: 2%; }
+.amplop-layar.surat-penuh .amplop-bunga { opacity: 0; }
 .amplop-tutup {
   position: absolute; left: 0; right: 0; top: 0; height: 60%; z-index: 4;
   transform-origin: 50% 0; transform-style: preserve-3d;
   transition: transform .75s cubic-bezier(.5, 0, .3, 1);
 }
 .tutup-luar, .tutup-dalam { position: absolute; inset: 0; clip-path: polygon(0 0, 100% 0, 50% 100%); backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 8px 8px 0 0; }
-.tutup-luar { background: linear-gradient(180deg, #f2e7d6, #ddcbb1); }
+.tutup-luar { background: url("../img/hiasan/kertas-serat.webp") 0 0 / 256px, linear-gradient(180deg, #f2e7d6, #ddcbb1); background-blend-mode: multiply; }
 .tutup-dalam { transform: rotateX(180deg); background: #4a0b19 url("../img/hiasan/beludru.webp") 0 0 / 90px repeat; }
 .amplop-segel {
   position: absolute; z-index: 5; left: 50%; top: 60%; width: 24%; aspect-ratio: 1;
@@ -797,8 +812,8 @@ h1, h2, h3 { margin: 0; font-weight: 400; }
 .kupu .sayap.kiri { right: 50%; transform-origin: 100% 50%; animation: kepak-kiri var(--kepak, .3s) ease-in-out infinite alternate; }
 .kupu .sayap.kanan { left: 50%; transform-origin: 0% 50%; animation: kepak-kanan var(--kepak, .3s) ease-in-out infinite alternate; }
 .kupu .badan { position: absolute; left: 50%; top: 28%; width: 7%; height: 46%; translate: -50% 0; border-radius: 50%; background: linear-gradient(90deg, #2a0f08, #6b4420, #2a0f08); }
-.kupu-pink { --sayap: url(#gk-pink); }
-.kupu-marun { --sayap: url(#gk-marun); }
+.kupu-pink { --s-emas: none; --s-pink: inline; }
+.kupu-marun { --s-emas: none; --s-marun: inline; }
 @keyframes kepak-kiri { from { transform: rotateY(-4deg); } to { transform: rotateY(-66deg); } }
 @keyframes kepak-kanan { from { transform: rotateY(4deg); } to { transform: rotateY(66deg); } }
 @keyframes terbang {
